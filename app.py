@@ -3,7 +3,7 @@ import middlewares
 from loader import dp, bot
 from utils.notify_admins import on_startup_notify
 from utils.set_bot_commands import set_default_commands
-from handlers.users.user_routers import user_router
+from handlers.users.all_routes import user_router
 
 
 async def on_startup():
