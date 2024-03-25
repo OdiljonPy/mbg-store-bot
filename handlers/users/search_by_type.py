@@ -33,3 +33,20 @@ async def search_by_type(message: types.Message):
             'ru': "Результаты по данному типу"
         }.get(lang)
     )
+
+
+@router.message(F.text.in_(["Qidiruv 🔍", "Поиск 🔍"]))
+async def search_by_type_button(message: types.Message):
+    lang = await get_user_lang(user_id=message.from_user.id)
+    if not lang:
+        await network_error_message(message=message, button=await main_button(lang='uz'))
+        return
+    await message.answer(
+        text={
+            'uz': "Sizni qiziqtirgan mahsulot turini tanlang\n"
+                  "va turdagi mahsulotlar haqida ko'proq malumot olishingiz mumkin.",
+            'ru': "Выберите интересующий вас тип продукта\n"
+                  "и вы можете узнать больше о типах продуктов."
+        }.get(lang),
+        reply_markup=await product_type(lang)
+    )

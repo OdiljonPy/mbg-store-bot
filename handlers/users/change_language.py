@@ -1,10 +1,10 @@
 import requests
 from data.config import BACKEND_URL
 from aiogram import types, Router, F
-from aiogram.fsm.context import FSMContext
-from keyboards.default.main import main_button, product_type_list, product_type, language
-from utils.misc.assistants import get_user_lang, network_error_message, send_error_notify_
 from states.states import ChangeLang
+from aiogram.fsm.context import FSMContext
+from keyboards.default.main import main_button, language
+from utils.misc.assistants import get_user_lang, network_error_message, send_error_notify_
 
 router = Router()
 
@@ -28,22 +28,46 @@ async def change_language(message: types.Message, state: FSMContext):
 
 @router.message(ChangeLang.lang, F.text.in_(["Uzb", "Rus"]))
 async def change_language(message: types.Message, state: FSMContext):
-    data = await state.get_data()
-    lang = data.get('lang')
+    if message.text == "Uzb":
+        lang = 'uz'
+    else:
+        lang = 'ru'
 
-    response = requests.get(
-        url=f"{BACKEND_URL}/[change - lang]"
+    response = requests.post(
+        url=f"{BACKEND_URL}/create/",
+        json={
+            "full_name": message.from_user.full_name,
+            "language": lang,
+            "telegram_id": message.from_user.id
+        }
     )
 
-    if response.status_code != 200:
+    if response.status_code != 201:
         await network_error_message(message=message, button=await main_button(lang))
+        await send_error_notify_(
+            status_code=response.status_code,
+            line=34, filename='change_language.py',
+            request_type='POST'
+        )
         await state.clear()
         return
 
     await message.answer(
         text={
-            'ru': "Til muvaffaqiyatli o'zgartirildi!",
-            'uz': "Язык успешно изменен!"
+            'uz': "Til muvaffaqiyatli o'zgartirildi!",
+            'ru': "Язык успешно изменен!"
         }.get(lang),
         reply_markup=await main_button(lang)
+    )
+
+
+@router.message(ChangeLang.lang)
+async def change_language_error(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lang = data.get('lang')
+    await message.answer(
+        text={
+            'uz': "O'zgartirish uchun tilni tanlang.\n",
+            'ru': "Выберите язык для изменения."
+        }.get(lang)
     )

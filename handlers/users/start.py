@@ -37,14 +37,14 @@ async def bot_start(message: types.Message, state: FSMContext):
         reply_markup=await language()
     )
 
-    # response = requests.post(
-    #     url=f"{BACKEND_URL}/user-tg/",
-    #     json={
-    #         "name": f"{message.from_user.first_name} - {message.from_user.last_name}",
-    #         "telegram_id": str(message.from_user.id),
-    #     }
-    # )
-    response = ...
+    response = requests.post(
+        url=f"{BACKEND_URL}/create/",
+        json={
+            "full_name": f"{message.from_user.full_name}",
+            "telegram_id": message.from_user.id
+        }
+    )
+
     if response.status_code != 201:
         await send_error_notify_(
             status_code=response.status_code,
@@ -64,14 +64,14 @@ async def user_language(message: types.Message, state: FSMContext):
         lang = 'ru'
 
     response = requests.post(
-        url=f"{BACKEND_URL}/user-tg/",
+        url=f"{BACKEND_URL}/create/",
         json={
-            "name": f"{message.from_user.first_name} - {message.from_user.last_name}",
-            "telegram_id": str(message.from_user.id),
+            "full_name": f"{message.from_user.full_name}",
+            "telegram_id": message.from_user.id,
             "language": lang
         }
     )
-    if response.status_code != 200:
+    if response.status_code != 201:
         await send_error_notify_(
             status_code=response.status_code,
             line=65, filename='start.py'

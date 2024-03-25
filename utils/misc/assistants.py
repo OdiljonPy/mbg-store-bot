@@ -6,7 +6,7 @@ from data.config import ERROR_NOTIFY_BOT_TOKEN, ERROR_NOTIFY_CHANNEL_ID
 
 
 async def send_error_notify_(status_code: int, line: int, filename: str, request_type: str = 'POST') -> None:
-    message = ("Stadium-Finder-Bot:\n\n"
+    message = ("MBG-Store-Bot:\n\n"
                f"Request {request_type} so'rovda xatolik yuz berdi.\n"
                f"{filename}  {line}-qator\n"
                f"request.status_code: {status_code}")
@@ -18,14 +18,12 @@ async def send_error_notify_(status_code: int, line: int, filename: str, request
 
 
 async def get_user_lang(user_id: int) -> str:
-    # response = requests.get(f"{BACKEND_URL}/")
-    #
-    # if response.json().get("ok") and response.status_code == 200:
-    #     return response.json().get('result').get('language')
-    # else:
-    #     return ''
+    response = requests.get(f"{BACKEND_URL}/check/?telegram_id={user_id}")
 
-    return 'uz'
+    if response.json().get("ok") and response.status_code == 200:
+        return response.json().get('result').get('language')
+    else:
+        return ''
 
 
 async def network_error_message(

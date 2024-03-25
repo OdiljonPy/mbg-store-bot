@@ -2,6 +2,7 @@ import requests
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.types import KeyboardButton
 from data.config import BACKEND_URL
+from loader import bot
 
 MainButtonText = {
     'uz': ["Qidiruv 🔍", "🏠 Asosiy sahifa", "🔄 Til"],
@@ -28,18 +29,19 @@ async def language():
 
 
 async def product_type(lang: str):
-    # type_list = requests.get(
-    #     url=f"{BACKEND_URL}/"
-    # )
-    # default type
-    type_list = ["Mevalar", "Ro'zg'or buyumlari", "Kiyimlar", "Qurilish", "Jihozlar"]
+    result = requests.get(
+        url=f"{BACKEND_URL}/category",
+        headers={"Accept-Language": lang}
+    ).json().get("result")
+    type_list = [name.get("name") for name in result]
+
     button = ReplyKeyboardBuilder()
     for type_ in type_list:
         button.add(KeyboardButton(text=f"{type_}"))
 
     button.add(*[
-        KeyboardButton(text=MainButtonText.get('uz')[1]),
-        KeyboardButton(text=MainButtonText.get('uz')[2])
+        KeyboardButton(text=MainButtonText.get(lang)[1]),
+        KeyboardButton(text=MainButtonText.get(lang)[2])
     ])
     if len(type_list) % 2 == 1:
         button.adjust(*[2] * int(len(type_list) / 2) + [1] + [2])
@@ -49,10 +51,28 @@ async def product_type(lang: str):
     return button.as_markup(resize_keyboard=True)
 
 
-def product_type_list():
-    # return type list
-    # return requests.get(
-    #     url=f"{BACKEND_URL}/"
-    # )
+async def send_error_message(user_id: int):
+    await bot.send_message(
+        chat_id=user_id,
+        text="Tarmoqda xatorlik yuz berdi\n"
+             "Iltimos qaytadan urinib ko'ring.\n\n"
+             "В сети произошла ошибка\n"
+             "Пожалуйста, попробуйте еще раз."
+    )
 
-    return ["Mevalar", "Ro'zg'or buyumlari", "Kiyimlar", "Qurilish", "Jihozlar"]
+
+def product_type_list():
+    pass
+    # print("ID ", user_id())
+    # lang = requests.get(f"{BACKEND_URL}/check/?telegram_id={user_id()}")
+    # print(f"{lang.json()=}")
+    #
+    # if not lang:
+    #     return []
+    # result = requests.get(
+    #     url=f"{BACKEND_URL}/category/",
+    #     headers={"Accept-Language": lang}
+    # ).json().get("result")
+    #
+    # print(f"{result=}")
+    # return [name.get('name') for name in result]
