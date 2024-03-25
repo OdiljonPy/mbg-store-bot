@@ -8,21 +8,24 @@ from utils.misc.assistants import get_user_lang, network_error_message, send_err
 router = Router()
 
 
-@router.message(F.text.in_(product_type_list()))
+# F.text.in_(product_type_list(12)),
+@router.message(lambda message: message.text in product_type_list(message.from_user.id))
 async def search_by_type(message: types.Message):
     lang = await get_user_lang(user_id=message.from_user.id)
     if not lang:
         await network_error_message(message=message, button=await main_button(lang='uz'))
         return
 
-    response = requests.get(
-        url=f"{BACKEND_URL}/[type]",
+    response = requests.post(
+        url=f"{BACKEND_URL}/store/products/filter/",
+        json={"category": 1},
         headers={"Accept-Language": lang}
     )
     if response.status_code != 200:
         await send_error_notify_(
             status_code=response.status_code,
-            line=13, filename='search_by_type.py'
+            line=13, filename='search_by_type.py',
+            request_type='POST'
         )
         await network_error_message(message=message, button=await product_type(lang=lang))
         return
@@ -33,6 +36,7 @@ async def search_by_type(message: types.Message):
             'ru': "Результаты по данному типу"
         }.get(lang)
     )
+    print("OK ", response.json())
 
 
 @router.message(F.text.in_(["Qidiruv 🔍", "Поиск 🔍"]))

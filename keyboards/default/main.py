@@ -61,18 +61,14 @@ async def send_error_message(user_id: int):
     )
 
 
-def product_type_list():
-    pass
-    # print("ID ", user_id())
-    # lang = requests.get(f"{BACKEND_URL}/check/?telegram_id={user_id()}")
-    # print(f"{lang.json()=}")
-    #
-    # if not lang:
-    #     return []
-    # result = requests.get(
-    #     url=f"{BACKEND_URL}/category/",
-    #     headers={"Accept-Language": lang}
-    # ).json().get("result")
-    #
-    # print(f"{result=}")
-    # return [name.get('name') for name in result]
+def product_type_list(user_id):
+    result = requests.get(f"{BACKEND_URL}/check/?telegram_id={user_id}")
+
+    if not result.json().get('result').get('language'):
+        return []
+    result = requests.get(
+        url=f"{BACKEND_URL}/category/",
+        headers={"Accept-Language": result.json().get('result').get('language')}
+    ).json().get("result")
+
+    return [name.get('name') for name in result]

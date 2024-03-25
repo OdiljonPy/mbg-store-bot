@@ -63,3 +63,9 @@ async def search_default(message: types.Message):
             media=media
         )
         return
+    await message.answer_media_group(
+        media=[
+            types.InputMediaPhoto(media='1-image-url'),
+            types.InputMediaPhoto(media='2-image-url')
+        ]
+    )
