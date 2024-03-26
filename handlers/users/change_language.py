@@ -28,6 +28,20 @@ async def change_language(message: types.Message, state: FSMContext):
 
 @router.message(ChangeLang.lang, F.text.in_(["Uzb", "Rus"]))
 async def change_language(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    lang = data.get('lang')
+
+    if (message.text == 'Uzb' and lang == 'uz') or (message.text == 'Rus' and lang == 'ru'):
+        await message.answer(
+            text={
+                'uz': "Til muvaffaqiyatli o'zgartirildi!",
+                'ru': "Язык успешно изменен!"
+            }.get(lang),
+            reply_markup=await main_button(lang)
+        )
+        await state.clear()
+        return
+
     if message.text == "Uzb":
         lang = 'uz'
     else:

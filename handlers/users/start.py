@@ -5,7 +5,7 @@ from states.states import LangState
 from data.config import BACKEND_URL
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from keyboards.default.main import main_button, language
+from keyboards.default.main import main_button, language, product_type
 from utils.misc.assistants import get_user_lang, send_error_notify_, network_error_message
 
 router = Router()
@@ -111,3 +111,20 @@ async def main_page(message: types.Message, state: FSMContext):
         reply_markup=await main_button(lang=lang)
     )
     await state.clear()
+
+
+@router.message(F.text.in_(["Qidiruv 🔍", "Поиск 🔍"]))
+async def search_by_type_button(message: types.Message):
+    lang = await get_user_lang(user_id=message.from_user.id)
+    if not lang:
+        await network_error_message(message=message, button=await main_button(lang='uz'))
+        return
+    await message.answer(
+        text={
+            'uz': "Sizni qiziqtirgan mahsulot turini tanlang\n"
+                  "va turdagi mahsulotlar haqida ko'proq malumot olishingiz mumkin.",
+            'ru': "Выберите интересующий вас тип продукта\n"
+                  "и вы можете узнать больше о типах продуктов."
+        }.get(lang),
+        reply_markup=await product_type(lang)
+    )

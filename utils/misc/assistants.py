@@ -59,8 +59,12 @@ async def network_error_message(
 async def send_content(message: types.Message, data):
     for content in data.get('content'):
         img_list = content.get("images")
-        url = hlink(title="map", url=f"https://maps.google.com/maps?"
-                                     f"q={content.get('store').get('latitude')},{content.get('store').get('longitude')}"
+        loc_name = content.get('store').get('store_location_name')
+        if loc_name is None:
+            loc_name = content.get('store').get('brand_name')
+        url = hlink(title=loc_name, url=f"https://maps.google.com/maps?"
+                                        f"q={content.get('store').get('latitude')},"
+                                        f"{content.get('store').get('longitude')}"
                     )
         media = [
             types.InputMediaPhoto(

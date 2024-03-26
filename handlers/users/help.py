@@ -12,7 +12,7 @@ async def bot_help(message: types.Message):
     if not lang:
         await network_error_message(message=message, button=await main_button(lang='uz'))
         return
-
+    from aiogram.enums import ParseMode
     await message.answer(text={
         'uz': "Buyruqlar: \n"
               "/start - Botni ishga tushirish\n"

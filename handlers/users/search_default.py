@@ -1,7 +1,6 @@
 import requests
 from aiogram import types, Router
 from data.config import BACKEND_URL
-from aiogram.utils.markdown import hlink
 from keyboards.default.main import main_button
 from utils.misc.assistants import get_user_lang, network_error_message, send_error_notify_, send_content
 
@@ -40,25 +39,3 @@ async def search_default(message: types.Message):
         )
         return
     await send_content(message=message, data=response.json().get("result"))
-    # for content in data.get('content'):
-    #     img_list = content.get("images")
-    #     url = hlink(title="map", url=f"https://maps.google.com/maps?"
-    #                                  f"q={content.get('store').get('latitude')},{content.get('store').get('longitude')}"
-    #                 )
-    #     media = [
-    #         types.InputMediaPhoto(
-    #             media=img_list.pop().get('image'),
-    #             caption=f"Store name: {content.get('store').get('brand_name')}\n\n"
-    #                     f"Product name: {content.get('name')}\n"
-    #                     f"Price: {content.get('discount_price')}\n"
-    #                     f"Discount: {content.get('discount')}%\n"
-    #                     f"Rating: {content.get('rating')}\n"
-    #                     f"Description: {content.get('description')}\n\n"
-    #                     f"Location: {url}"
-    #         )]
-    #
-    #     media += list(map(lambda img: types.InputMediaPhoto(media=img.get('image')), img_list))
-    #
-    #     await message.answer_media_group(
-    #         media=media
-    #     )
