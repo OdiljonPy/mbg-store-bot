@@ -1,8 +1,7 @@
 import requests
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
-from aiogram.types import KeyboardButton
 from data.config import BACKEND_URL
-from loader import bot
+from aiogram.types import KeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 MainButtonText = {
     'uz': ["Qidiruv 🔍", "🏠 Asosiy sahifa", "🔄 Til"],
@@ -51,17 +50,7 @@ async def product_type(lang: str):
     return button.as_markup(resize_keyboard=True)
 
 
-async def send_error_message(user_id: int):
-    await bot.send_message(
-        chat_id=user_id,
-        text="Tarmoqda xatorlik yuz berdi\n"
-             "Iltimos qaytadan urinib ko'ring.\n\n"
-             "В сети произошла ошибка\n"
-             "Пожалуйста, попробуйте еще раз."
-    )
-
-
-def product_type_list(user_id):
+def product_type_list(user_id) -> list:
     result = requests.get(f"{BACKEND_URL}/check/?telegram_id={user_id}")
 
     if not result.json().get('result').get('language'):
