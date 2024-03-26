@@ -59,6 +59,7 @@ async def change_language(message: types.Message, state: FSMContext):
         }.get(lang),
         reply_markup=await main_button(lang)
     )
+    await state.clear()
 
 
 @router.message(ChangeLang.lang)

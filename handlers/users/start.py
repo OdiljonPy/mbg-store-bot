@@ -11,8 +11,8 @@ from utils.misc.assistants import get_user_lang, send_error_notify_, network_err
 router = Router()
 
 answer_t = {
-    'uz': "Kerakli mahsulot nomini kiriting\nyoki berilgan tugmalar orqali kerakli amalni bajaring.",
-    'ru': "Введите желаемое название продукта\nили выполните желаемое действие с помощью предоставленных кнопок."
+    'uz': "Kerakli mahsulot nomini yuboring\nyoki berilgan tugmalar orqali kerakli amalni bajaring.",
+    'ru': "Отправить желаемое название продукта\nили выполните желаемое действие с помощью предоставленных кнопок."
 }
 
 

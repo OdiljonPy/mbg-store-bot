@@ -2,6 +2,7 @@ import requests
 from aiogram import types
 from typing import Union, Optional
 from data.config import BACKEND_URL
+from aiogram.utils.markdown import hlink
 from data.config import ERROR_NOTIFY_BOT_TOKEN, ERROR_NOTIFY_CHANNEL_ID
 
 
@@ -23,6 +24,10 @@ async def get_user_lang(user_id: int) -> str:
     if response.json().get("ok") and response.status_code == 200:
         return response.json().get('result').get('language')
     else:
+        await send_error_notify_(
+            status_code=response.status_code,
+            line=24, filename='assistants.py', request_type='GET'
+        )
         return ''
 
 
@@ -48,4 +53,29 @@ async def network_error_message(
                  "В сети произошла ошибка\n"
                  "Пожалуйста, попробуйте еще раз.",
             reply_markup=button
+        )
+
+
+async def send_content(message: types.Message, data):
+    for content in data.get('content'):
+        img_list = content.get("images")
+        url = hlink(title="map", url=f"https://maps.google.com/maps?"
+                                     f"q={content.get('store').get('latitude')},{content.get('store').get('longitude')}"
+                    )
+        media = [
+            types.InputMediaPhoto(
+                media=img_list.pop().get('image'),
+                caption=f"Store name: {content.get('store').get('brand_name')}\n\n"
+                        f"Product name: {content.get('name')}\n"
+                        f"Price: {content.get('discount_price')}\n"
+                        f"Discount: {content.get('discount')}%\n"
+                        f"Rating: {content.get('rating')}\n"
+                        f"Description: {content.get('description')}\n\n"
+                        f"Location: {url}"
+            )]
+
+        media += list(map(lambda img: types.InputMediaPhoto(media=img.get('image')), img_list))
+
+        await message.answer_media_group(
+            media=media
         )
