@@ -74,7 +74,7 @@ async def user_language(message: types.Message, state: FSMContext):
     if response.status_code != 201:
         await send_error_notify_(
             status_code=response.status_code,
-            line=65, filename='start.py'
+            line=66, filename='start.py'
         )
         await network_error_message(message=message)
         await state.set_state(LangState.lang)

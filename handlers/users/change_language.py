@@ -60,7 +60,7 @@ async def change_language(message: types.Message, state: FSMContext):
         await network_error_message(message=message, button=await main_button(lang))
         await send_error_notify_(
             status_code=response.status_code,
-            line=34, filename='change_language.py',
+            line=50, filename='change_language.py',
             request_type='POST'
         )
         await state.clear()

@@ -25,7 +25,7 @@ async def search_default(message: types.Message):
         await network_error_message(message)
         await send_error_notify_(
             status_code=response.status_code,
-            line=12, filename='search_default.py',
+            line=16, filename='search_default.py',
             request_type='POST'
         )
         return

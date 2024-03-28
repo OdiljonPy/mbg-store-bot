@@ -2,6 +2,7 @@ import requests
 from data.config import BACKEND_URL
 from aiogram.types import KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from utils.misc.assistants import send_error_notify_
 
 MainButtonText = {
     'uz': ["Qidiruv 🔍", "🏠 Asosiy sahifa", "🔄 Til"],
@@ -31,8 +32,15 @@ async def product_type(lang: str):
     result = requests.get(
         url=f"{BACKEND_URL}/category",
         headers={"Accept-Language": lang}
-    ).json().get("result")
-    type_list = [name.get("name") for name in result]
+    )
+
+    if result.status_code != 200 and not result.json().get('ok'):
+        await send_error_notify_(
+            status_code=result.status_code,
+            line=32, filename='default/main.py',
+            request_type='GET'
+        )
+    type_list = [name.get("name") for name in result.json().get("result")]
 
     button = ReplyKeyboardBuilder()
     for type_ in type_list:

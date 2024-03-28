@@ -23,7 +23,7 @@ async def search_by_type(message: types.Message):
         await network_error_message(message=message)
         await send_error_notify_(
             status_code=response.status_code,
-            line=19, filename='search_by_type.py',
+            line=17, filename='search_by_type.py',
             request_type='GET'
         )
         return
@@ -39,7 +39,7 @@ async def search_by_type(message: types.Message):
         await network_error_message(message=message, button=await product_type(lang=lang))
         await send_error_notify_(
             status_code=response.status_code,
-            line=13, filename='search_by_type.py',
+            line=33, filename='search_by_type.py',
             request_type='POST'
         )
         return

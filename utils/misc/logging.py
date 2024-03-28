@@ -1,8 +1,9 @@
 import logging
+from datetime import datetime
 
 logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.DEBUG,
-                    filename='data/logs.log',
+                    filename=f"data/logs/{datetime.utcnow().strftime('%Y-%m-%d_%H:%M:%S')}.log",
                     filemode='w'
                     # level=logging.DEBUG,  # Можно заменить на другой уровень логгирования.
                     )
