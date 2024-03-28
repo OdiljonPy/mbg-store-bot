@@ -22,7 +22,10 @@ async def get_user_lang(user_id: int) -> str:
     response = requests.get(f"{BACKEND_URL}/check/?telegram_id={user_id}")
 
     if response.json().get("ok") and response.status_code == 200:
-        return response.json().get('result').get('language')
+        if response.json().get('user'):
+            return response.json().get('result').get('language')
+        else:
+            return ''
     else:
         await send_error_notify_(
             status_code=response.status_code,
