@@ -1,17 +1,16 @@
 import requests
 from aiogram import types, Router
 from data.config import BACKEND_URL
-from keyboards.default.main import main_button
+from aiogram.fsm.context import FSMContext
 from utils.misc.assistants import get_user_lang, network_error_message, send_error_notify_, send_content
 
 router = Router()
 
 
 @router.message()
-async def search_default(message: types.Message):
-    lang = await get_user_lang(user_id=message.from_user.id)
+async def search_default(message: types.Message, state: FSMContext):
+    lang = await get_user_lang(message=message, state=state)
     if not lang:
-        await network_error_message(message=message, button=await main_button(lang='uz'))
         return
     response = requests.post(
         url=f"{BACKEND_URL}/store/products/filter/",

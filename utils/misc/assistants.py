@@ -3,6 +3,7 @@ from aiogram import types
 from typing import Union, Optional
 from data.config import BACKEND_URL
 from aiogram.utils.markdown import hlink
+from aiogram.fsm.context import FSMContext
 from data.config import ERROR_NOTIFY_BOT_TOKEN, ERROR_NOTIFY_CHANNEL_ID
 
 
@@ -18,18 +19,28 @@ async def send_error_notify_(status_code: int, line: int, filename: str, request
     # )
 
 
-async def get_user_lang(user_id: int) -> str:
-    response = requests.get(f"{BACKEND_URL}/check/?telegram_id={user_id}")
+async def get_user_lang(message: types.Message, state: FSMContext) -> str:
+    data = await state.get_data()
+    if data.get('language'):
+        print("State lang: ", data.get('language'))
+        return data.get('language')
+
+    response = requests.get(f"{BACKEND_URL}/check/?telegram_id={message.from_user.id}")
 
     if response.json().get("ok") and response.status_code == 200:
         if response.json().get('user'):
-            return response.json().get('result').get('language')
+            lang = response.json().get('result').get('language')
+            await state.update_data({'language': lang})
+            return lang
         else:
             return ''
     else:
         await send_error_notify_(
             status_code=response.status_code,
             line=24, filename='assistants.py', request_type='GET'
+        )
+        await network_error_message(
+            message=message
         )
         return ''
 

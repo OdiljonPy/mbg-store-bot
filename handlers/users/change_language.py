@@ -11,10 +11,10 @@ router = Router()
 
 @router.message(F.text.in_(["🔄 Til", "🔄 Язык"]))
 async def change_language(message: types.Message, state: FSMContext):
-    lang = await get_user_lang(user_id=message.from_user.id)
+    lang = await get_user_lang(message=message, state=state)
     if not lang:
-        await network_error_message(message=message, button=await main_button(lang='uz'))
         return
+
     await message.answer(
         text={
             'uz': "Kerakli tilni tanlang.",
@@ -22,14 +22,14 @@ async def change_language(message: types.Message, state: FSMContext):
         }.get(lang),
         reply_markup=await language()
     )
-    await state.update_data({'lang': lang})
     await state.set_state(ChangeLang.lang)
 
 
 @router.message(ChangeLang.lang, F.text.in_(["Uzb", "Rus"]))
 async def change_language(message: types.Message, state: FSMContext):
-    data = await state.get_data()
-    lang = data.get('lang')
+    lang = await get_user_lang(message=message, state=state)
+    if not lang:
+        return
 
     if (message.text == 'Uzb' and lang == 'uz') or (message.text == 'Rus' and lang == 'ru'):
         await message.answer(
@@ -39,7 +39,7 @@ async def change_language(message: types.Message, state: FSMContext):
             }.get(lang),
             reply_markup=await main_button(lang)
         )
-        await state.clear()
+        await state.set_state(None)
         return
 
     if message.text == "Uzb":
@@ -63,8 +63,10 @@ async def change_language(message: types.Message, state: FSMContext):
             line=50, filename='change_language.py',
             request_type='POST'
         )
-        await state.clear()
+        await state.set_state(None)
         return
+
+    await state.update_data({'language': lang})
 
     await message.answer(
         text={
@@ -73,13 +75,14 @@ async def change_language(message: types.Message, state: FSMContext):
         }.get(lang),
         reply_markup=await main_button(lang)
     )
-    await state.clear()
+    await state.set_state(None)
 
 
 @router.message(ChangeLang.lang)
 async def change_language_error(message: types.Message, state: FSMContext):
-    data = await state.get_data()
-    lang = data.get('lang')
+    lang = await get_user_lang(message=message, state=state)
+    if not lang:
+        return
     await message.answer(
         text={
             'uz': "O'zgartirish uchun tilni tanlang.\n",

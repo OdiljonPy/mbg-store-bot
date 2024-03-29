@@ -18,7 +18,7 @@ answer_t = {
 
 @router.message(CommandStart())
 async def bot_start(message: types.Message, state: FSMContext):
-    lang = await get_user_lang(user_id=message.from_user.id)
+    lang = await get_user_lang(message=message, state=state)
     if lang:
         await message.answer(
             text=answer_t.get(lang),
@@ -84,7 +84,7 @@ async def user_language(message: types.Message, state: FSMContext):
         text=answer_t.get(lang),
         reply_markup=await main_button(lang=lang)
     )
-    await state.clear()
+    await state.set_state(None)
 
 
 @router.message(LangState.lang)
@@ -100,25 +100,23 @@ async def user_language(message: types.Message, state: FSMContext):
 
 @router.message(F.text.in_(["🏠 Asosiy sahifa", "🏠 Главная страница"]))
 async def main_page(message: types.Message, state: FSMContext):
-    lang = await get_user_lang(user_id=message.from_user.id)
+    lang = await get_user_lang(message=message, state=state)
+    await state.set_state(None)
     if not lang:
-        await network_error_message(message=message, button=await main_button(lang='uz'))
-        await state.clear()
         return
 
     await message.answer(
         text=answer_t.get(lang),
         reply_markup=await main_button(lang=lang)
     )
-    await state.clear()
 
 
 @router.message(F.text.in_(["Qidiruv 🔍", "Поиск 🔍"]))
-async def search_by_type_button(message: types.Message):
-    lang = await get_user_lang(user_id=message.from_user.id)
+async def search_by_type_button(message: types.Message, state: FSMContext):
+    lang = await get_user_lang(message=message, state=state)
     if not lang:
-        await network_error_message(message=message, button=await main_button(lang='uz'))
         return
+
     await message.answer(
         text={
             'uz': "Sizni qiziqtirgan mahsulot turini tanlang\n"

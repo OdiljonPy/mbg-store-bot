@@ -1,18 +1,17 @@
 from aiogram import types, Router
 from aiogram.filters import Command
-from keyboards.default.main import main_button
-from utils.misc.assistants import get_user_lang, network_error_message
+from aiogram.fsm.context import FSMContext
+from utils.misc.assistants import get_user_lang
 
 router = Router()
 
 
 @router.message(Command('help'))
-async def bot_help(message: types.Message):
-    lang = await get_user_lang(user_id=message.from_user.id)
+async def bot_help(message: types.Message, state: FSMContext):
+    lang = await get_user_lang(message=message, state=state)
     if not lang:
-        await network_error_message(message=message, button=await main_button(lang='uz'))
         return
-    from aiogram.enums import ParseMode
+
     await message.answer(text={
         'uz': "Buyruqlar: \n"
               "/start - Botni ishga tushirish\n"
