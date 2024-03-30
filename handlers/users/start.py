@@ -3,6 +3,7 @@ from aiogram import F
 from aiogram import types, Router
 from states.states import LangState
 from data.config import BACKEND_URL
+from states.states import SearchByType
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from keyboards.default.main import main_button, language, product_type
@@ -126,3 +127,4 @@ async def search_by_type_button(message: types.Message, state: FSMContext):
         }.get(lang),
         reply_markup=await product_type(lang)
     )
+    await state.set_state(SearchByType.p_type)

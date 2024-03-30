@@ -58,19 +58,6 @@ async def product_type(lang: str):
     return button.as_markup(resize_keyboard=True)
 
 
-def product_type_list(user_id) -> list:
-    result = requests.get(f"{BACKEND_URL}/check/?telegram_id={user_id}")
-
-    if not result.json().get('result').get('language'):
-        return []
-    result = requests.get(
-        url=f"{BACKEND_URL}/category/",
-        headers={"Accept-Language": result.json().get('result').get('language')}
-    ).json().get("result")
-
-    return [name.get('name') for name in result]
-
-
 def get_category_id(category: str, user_id: int) -> int:
     result = requests.get(f"{BACKEND_URL}/check/?telegram_id={user_id}")
 

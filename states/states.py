@@ -7,3 +7,7 @@ class LangState(StatesGroup):
 
 class ChangeLang(StatesGroup):
     lang = State()
+
+
+class SearchByType(StatesGroup):
+    p_type = State()
