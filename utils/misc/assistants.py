@@ -72,52 +72,54 @@ async def network_error_message(
 
 
 async def send_content(message: types.Message, data, lang):
-    for content in data.get('content'):
+    for content in data.get('content')[:5]:
         img_list = content.get("images")
         loc_name = content.get('store').get('store_location_name')
         if loc_name is None:
             loc_name = content.get('store').get('brand_name')
-        product_url = hlink(title='link',
-                            url=f"{BACKEND_URL}/store/products/{content.get('id')}/")
-        url = hlink(title=loc_name + ' 🗺',
-                    url=f"https://maps.google.com/maps?"
-                        f"q={content.get('store').get('latitude')},"
-                        f"{content.get('store').get('longitude')}"
-                    )
-        discount_price = ''
+        product_url = hlink(
+            title={
+                'uz': "🛍 Mahsulotni xarid qilish",
+                'ru': "🛍 Покупка товара"
+            }.get(lang),
+            url=f"https://www.mbgstore.uz/products/{content.get('id')}/")
+
+        shop_location = hlink(title='📍  ' + loc_name,
+                              url=f"https://maps.google.com/maps?"
+                                  f"q={content.get('store').get('latitude')},"
+                                  f"{content.get('store').get('longitude')}"
+                              )
         if content.get('discount'):
             discount_price = {
-                'uz': f"\nUshbu mahsulot uchun chegirma mavjud 🎉\n"
-                      f"Mahsulot narxi: <del>{content.get('price')} UZS</del>   "
-                      f"<ins>{content.get('discount_price')} UZS</ins> 💰\n\n",
+                'uz': f"\n🎉 Ushbu mahsulot uchun chegirma mavjud\n"
+                      f"💰 Mahsulot narxi: <del>{content.get('price')} UZS</del>   "
+                      f"<ins>{content.get('discount_price')} UZS</ins>\n\n",
 
-                'ru': f"\nНа этот товар Действует Скидка 🎉\n"
-                      f"Цена товара: <del>{content.get('price')} UZS</del>   "
-                      f"<ins>{content.get('discount_price')} UZS</ins> 💰\n\n"
+                'ru': f"\n🎉 На этот товар Действует Скидка\n"
+                      f"💰 Цена товара: <del>{content.get('price')} UZS</del>   "
+                      f"<ins>{content.get('discount_price')} UZS</ins>\n\n"
             }.get(lang)
         else:
             discount_price = {
-                'uz': f"Mahsulot narxi: <ins>{content.get('price')} UZS</ins> 💰\n\n",
-                'ru': f"Цена товара: <ins>{content.get('price')} UZS</ins> 💰\n\n"
+                'uz': f"💰 Mahsulot narxi: <ins>{content.get('price')} UZS</ins>\n\n",
+                'ru': f"💰 Цена товара: <ins>{content.get('price')} UZS</ins>\n\n"
             }.get(lang)
 
         text = {
             'uz': f"🏭 Do'kon nomi: {content.get('store').get('brand_name')}\n\n"
                   f"Mahsulot nomi: {content.get('name')}\n"
                   f"Reyting darajasi: {content.get('rating')}\n"
-            # f"Mahsulot narxi: {content.get('price')} UZS 💰\n\n"
                   f"{discount_price}"
                   f"Mahsulot haqida: {content.get('description')}\n\n"
-                  f"Mahsulotni xarid qilish: {product_url}\n"
-                  f"Do'kon joylashuvi: {url}",
+                  f"{product_url}\n"
+                  f"{shop_location}",
             'ru': f"🏭 Название магазина: {content.get('store').get('brand_name')}\n\n"
                   f"Название продукта: {content.get('name')}\n"
                   f"Рейтинговый уровень: {content.get('rating')}\n"
-            # f"Цена товара: {content.get('price')} UZS 💰\n\n"
                   f"{discount_price}"
                   f"О продукте: {content.get('description')}\n\n"
-                  f"Покупка товара: {product_url}\n"
-                  f"Расположение магазина: {url}"
+                  f"{product_url}\n"
+                  f"{shop_location}"
         }
         media = [
             types.InputMediaPhoto(
