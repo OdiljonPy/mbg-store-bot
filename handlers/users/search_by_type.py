@@ -32,8 +32,10 @@ async def search_by_type(message: types.Message, state: FSMContext):
     if not category_id:
         await message.answer(
             text={
-                'uz': "Tanlangan tur bo'yicha mahsulotlar topilmadi.",
-                'ru': "Продукты по выбранному типу не найдены."
+                'uz': "Tanlangan tur bo'yicha mahsulotlar topilmadi 😔.\n"
+                      "Iltimos sizga tavsiya qilingan turlardan birini tanlang.",
+                'ru': "Продукты по выбранному типу не найдены 😔.\n"
+                      "Пожалуйста, выберите один из рекомендуемых типов."
             }.get(lang)
         )
         return
@@ -55,18 +57,18 @@ async def search_by_type(message: types.Message, state: FSMContext):
     if response.json().get('result').get('numberOfElements') == 0:
         await message.answer(
             text={
-                'uz': "Tanlangan tur bo'yicha mahsulotlar topilmadi.",
-                'ru': "Продукты по выбранному типу не найдены."
+                'uz': "Tanlangan tur bo'yicha mahsulotlar topilmadi 😔.",
+                'ru': "Продукты по выбранному типу не найдены 😔."
             }.get(lang)
         )
         return
 
     text = {
-        'uz': "Berilgan type bo'yicha natijalar",
-        'ru': "Результаты по данному типу"
+        'uz': "Tanlangan mahsulot turi bo'yicha natijalar 🍱.",
+        'ru': "Результаты по выбранному типу продукта 🍱."
     }.get(lang)
     await message.answer(
         text=text
     )
 
-    await send_content(message=message, data=response.json().get("result"))
+    await send_content(message=message, data=response.json().get("result"), lang=lang)

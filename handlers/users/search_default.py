@@ -32,9 +32,9 @@ async def search_default(message: types.Message, state: FSMContext):
     if response.json().get('result').get('numberOfElements') == 0:
         await message.answer(
             text={
-                'uz': "Siz izlagan mahsulot topilmadi",
-                'ru': "Не удалось найти продукт, который вы искали"
+                'uz': "Siz izlagan mahsulot topilmadi 😔.",
+                'ru': "Не удалось найти продукт, который вы искали 😔."
             }.get(lang)
         )
         return
-    await send_content(message=message, data=response.json().get("result"))
+    await send_content(message=message, data=response.json().get("result"), lang=lang)

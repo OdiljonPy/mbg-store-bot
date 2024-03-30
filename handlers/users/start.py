@@ -12,8 +12,10 @@ from utils.misc.assistants import get_user_lang, send_error_notify_, network_err
 router = Router()
 
 answer_t = {
-    'uz': "Kerakli mahsulot nomini yuboring\nyoki berilgan tugmalar orqali kerakli amalni bajaring.",
-    'ru': "Отправить желаемое название продукта\nили выполните желаемое действие с помощью предоставленных кнопок."
+    'uz': "Menga mahsulot nomini yuboring\n"
+          "yoki berilgan tugmalar orqali kerakli amallar ketma-ketligini bajaring.",
+    'ru': "Пришлите мне название продукта\n"
+          "или выполните необходимую последовательность действий с помощью предоставленных кнопок."
 }
 
 
@@ -27,16 +29,17 @@ async def bot_start(message: types.Message, state: FSMContext):
         )
         return
     await message.answer(
-        text="Assalomu alaykum\n"
-             "Botga xush kelibsiz\n\n"
-             "Здравствуйте\n"
-             "Добро пожаловать в бот"
-    )
-    await message.answer(
-        text="Foydalanish uchun tilni tanlang.\n"
-             "Выберите язык для использования.",
+        text="Assalomu alaykum botga xush kelibsiz\n"
+             "Menga qanday tilda murojat qilishni hohlaysiz ?\n\n"
+             "Здравствуйте, добро пожаловать в бот\n"
+             "На каком языке вы хотите со мной связаться ?",
         reply_markup=await language()
     )
+    # await message.answer(
+    #     text="Foydalanish uchun tilni tanlang.\n"
+    #          "Выберите язык для использования.",
+    #     reply_markup=await language()
+    # )
 
     response = requests.post(
         url=f"{BACKEND_URL}/create/",
@@ -92,8 +95,8 @@ async def user_language(message: types.Message, state: FSMContext):
 async def user_language(message: types.Message, state: FSMContext):
     await message.delete()
     await message.answer(
-        text="Foydalanish uchun tilni tanlang.\n"
-             "Выберите язык для использования.",
+        text="Murojat uchun tilni tanlang 🪄.\n\n"
+             "Выберите язык для апелляции 🪄.",
         reply_markup=await language()
     )
     await state.set_state(LangState.lang)

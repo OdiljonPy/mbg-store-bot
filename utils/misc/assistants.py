@@ -2,6 +2,7 @@ import requests
 from aiogram import types
 from typing import Union, Optional
 from data.config import BACKEND_URL
+from aiogram.enums import ParseMode
 from aiogram.utils.markdown import hlink
 from aiogram.fsm.context import FSMContext
 from data.config import ERROR_NOTIFY_BOT_TOKEN, ERROR_NOTIFY_CHANNEL_ID
@@ -55,45 +56,78 @@ async def network_error_message(
 ):
     if button is None:
         await message.answer(
-            text="Tarmoqda xatorlik yuz berdi\n"
+            text="Tarmoqda ulanish xatoligi yuz berdi\n"
                  "Iltimos qaytadan urinib ko'ring.\n\n"
-                 "В сети произошла ошибка\n"
+                 "Произошла ошибка подключения к сети\n"
                  "Пожалуйста, попробуйте еще раз."
         )
     else:
         await message.answer(
-            text="Tarmoqda xatorlik yuz berdi\n"
+            text="Tarmoqda ulanish xatoligi yuz berdi\n"
                  "Iltimos qaytadan urinib ko'ring.\n\n"
-                 "В сети произошла ошибка\n"
+                 "Произошла ошибка подключения к сети\n"
                  "Пожалуйста, попробуйте еще раз.",
             reply_markup=button
         )
 
 
-async def send_content(message: types.Message, data):
+async def send_content(message: types.Message, data, lang):
     for content in data.get('content'):
         img_list = content.get("images")
         loc_name = content.get('store').get('store_location_name')
         if loc_name is None:
             loc_name = content.get('store').get('brand_name')
-        url = hlink(title=loc_name, url=f"https://maps.google.com/maps?"
-                                        f"q={content.get('store').get('latitude')},"
-                                        f"{content.get('store').get('longitude')}"
+        product_url = hlink(title='link',
+                            url=f"{BACKEND_URL}/store/products/{content.get('id')}/")
+        url = hlink(title=loc_name + ' 🗺',
+                    url=f"https://maps.google.com/maps?"
+                        f"q={content.get('store').get('latitude')},"
+                        f"{content.get('store').get('longitude')}"
                     )
+        discount_price = ''
+        if content.get('discount'):
+            discount_price = {
+                'uz': f"\nUshbu mahsulot uchun chegirma mavjud 🎉\n"
+                      f"Mahsulot narxi: <del>{content.get('price')} UZS</del>   "
+                      f"<ins>{content.get('discount_price')} UZS</ins> 💰\n\n",
+
+                'ru': f"\nНа этот товар Действует Скидка 🎉\n"
+                      f"Цена товара: <del>{content.get('price')} UZS</del>   "
+                      f"<ins>{content.get('discount_price')} UZS</ins> 💰\n\n"
+            }.get(lang)
+        else:
+            discount_price = {
+                'uz': f"Mahsulot narxi: <ins>{content.get('price')} UZS</ins> 💰\n\n",
+                'ru': f"Цена товара: <ins>{content.get('price')} UZS</ins> 💰\n\n"
+            }.get(lang)
+
+        text = {
+            'uz': f"🏭 Do'kon nomi: {content.get('store').get('brand_name')}\n\n"
+                  f"Mahsulot nomi: {content.get('name')}\n"
+                  f"Reyting darajasi: {content.get('rating')}\n"
+            # f"Mahsulot narxi: {content.get('price')} UZS 💰\n\n"
+                  f"{discount_price}"
+                  f"Mahsulot haqida: {content.get('description')}\n\n"
+                  f"Mahsulotni xarid qilish: {product_url}\n"
+                  f"Do'kon joylashuvi: {url}",
+            'ru': f"🏭 Название магазина: {content.get('store').get('brand_name')}\n\n"
+                  f"Название продукта: {content.get('name')}\n"
+                  f"Рейтинговый уровень: {content.get('rating')}\n"
+            # f"Цена товара: {content.get('price')} UZS 💰\n\n"
+                  f"{discount_price}"
+                  f"О продукте: {content.get('description')}\n\n"
+                  f"Покупка товара: {product_url}\n"
+                  f"Расположение магазина: {url}"
+        }
         media = [
             types.InputMediaPhoto(
                 media=img_list.pop().get('image'),
-                caption=f"Store name: {content.get('store').get('brand_name')}\n\n"
-                        f"Product name: {content.get('name')}\n"
-                        f"Price: {content.get('discount_price')}\n"
-                        f"Discount: {content.get('discount')}%\n"
-                        f"Rating: {content.get('rating')}\n"
-                        f"Description: {content.get('description')}\n\n"
-                        f"Location: {url}"
+                caption=text.get(lang),
+                parse_mode=ParseMode.HTML
             )]
 
         media += list(map(lambda img: types.InputMediaPhoto(media=img.get('image')), img_list))
 
         await message.answer_media_group(
-            media=media
+            media=media,
         )

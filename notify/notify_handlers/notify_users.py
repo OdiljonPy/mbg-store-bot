@@ -21,8 +21,8 @@ async def notify_users_(bot: Bot):
             await bot.send_message(
                 chat_id=user.get('id'),
                 text={
-                    'uz': "Botdan foydalanish uchun yangi qulayliklar qo'shildi.",
-                    'ru': "Добавлены новые удобства использования бота."
+                    'uz': "Botdan foydalanish uchun yangi qulayliklar qo'shildi 🔄.",
+                    'ru': "Добавлены новые удобства использования бота 🔄."
                 }.get(user.get('lang')),
                 reply_markup=await main_button(lang=user.get('lang'))
             )
