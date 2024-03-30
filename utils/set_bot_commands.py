@@ -1,5 +1,5 @@
-from aiogram.types import BotCommand, BotCommandScopeDefault, BotCommandScopeChatMember
 from loader import bot
+from aiogram.types import BotCommand, BotCommandScopeDefault
 
 
 async def set_default_commands():
@@ -14,5 +14,3 @@ async def set_default_commands():
         )
     ]
     await bot.set_my_commands(commands=commands, scope=BotCommandScopeDefault())
-    # await bot.set_my_commands(
-    #     commands=commands, scope=BotCommandScopeChatMember(chat_id=-4098627094, user_id=5337749599))
