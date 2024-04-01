@@ -11,3 +11,7 @@ class ChangeLang(StatesGroup):
 
 class SearchByType(StatesGroup):
     p_type = State()
+
+
+class UserNotFound(StatesGroup):
+    user_id = State()

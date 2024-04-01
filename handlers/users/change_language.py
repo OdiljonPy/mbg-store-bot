@@ -9,7 +9,7 @@ from utils.misc.assistants import get_user_lang, network_error_message, send_err
 router = Router()
 
 
-@router.message(F.text.in_(["🔄 Til", "🔄 Язык"]))
+@router.message(F.text.in_(["🌎 Tilni o'zgartirish", "🌎 Изменить язык"]))
 async def change_language(message: types.Message, state: FSMContext):
     lang = await get_user_lang(message=message, state=state)
     if not lang:
@@ -25,24 +25,24 @@ async def change_language(message: types.Message, state: FSMContext):
     await state.set_state(ChangeLang.lang)
 
 
-@router.message(ChangeLang.lang, F.text.in_(["Uzb", "Rus"]))
+@router.message(ChangeLang.lang, F.text.in_(["🇺🇿 O'zbek", "🇷🇺 Русский"]))
 async def change_language(message: types.Message, state: FSMContext):
     lang = await get_user_lang(message=message, state=state)
     if not lang:
         return
 
-    if (message.text == 'Uzb' and lang == 'uz') or (message.text == 'Rus' and lang == 'ru'):
+    if (message.text == "🇺🇿 O'zbek" and lang == 'uz') or (message.text == "🇷🇺 Русский" and lang == 'ru'):
         await message.answer(
             text={
-                'uz': "Til muvaffaqiyatli o'zgartirildi!",
-                'ru': "Язык успешно изменен!"
+                'uz': "🎉 Til muvaffaqiyatli o'zgartirildi!",
+                'ru': "🎉 Язык успешно изменен!"
             }.get(lang),
             reply_markup=await main_button(lang)
         )
         await state.set_state(None)
         return
 
-    if message.text == "Uzb":
+    if message.text == "🇺🇿 O'zbek":
         lang = 'uz'
     else:
         lang = 'ru'
@@ -70,8 +70,8 @@ async def change_language(message: types.Message, state: FSMContext):
 
     await message.answer(
         text={
-            'uz': "Til muvaffaqiyatli o'zgartirildi!",
-            'ru': "Язык успешно изменен!"
+            'uz': "🎉 Til muvaffaqiyatli o'zgartirildi!",
+            'ru': "🎉 Язык успешно изменен!"
         }.get(lang),
         reply_markup=await main_button(lang)
     )

@@ -2,6 +2,7 @@ import requests
 from aiogram import F
 from aiogram import types, Router
 from states.states import LangState
+from aiogram.enums import ParseMode
 from data.config import BACKEND_URL
 from states.states import SearchByType
 from aiogram.filters import CommandStart
@@ -12,10 +13,10 @@ from utils.misc.assistants import get_user_lang, send_error_notify_, network_err
 router = Router()
 
 answer_t = {
-    'uz': "Menga mahsulot nomini yuboring\n"
-          "yoki berilgan tugmalar orqali kerakli amallar ketma-ketligini bajaring.",
-    'ru': "Пришлите мне название продукта\n"
-          "или выполните необходимую последовательность действий с помощью предоставленных кнопок."
+    'uz': "🖋 Menga mahsulot nomini yozib yuboring yoki\n"
+          "👇 Berilgan tugmalar orqali kerakli amallar ketma-ketligini bajaring.",
+    'ru': "🖋 Напишите Мне название продукта или\n"
+          "👇 Выполните необходимую последовательность действий по заданным кнопкам."
 }
 
 
@@ -29,17 +30,18 @@ async def bot_start(message: types.Message, state: FSMContext):
         )
         return
     await message.answer(
-        text="Assalomu alaykum botga xush kelibsiz\n"
-             "Menga qanday tilda murojat qilishni hohlaysiz ?\n\n"
-             "Здравствуйте, добро пожаловать в бот\n"
-             "На каком языке вы хотите со мной связаться ?",
+        text=f"🇺🇿  Assalomu alaykum <b>{message.from_user.full_name}</b>.\n"
+             f"Botga xush kelibsiz.\n"
+             f"Bu bot yordamida siz <b>MBG-Store</b> online platformasidan "
+             f"kerakli mahsulotlar haqida bilib olishingiz mumkin.\n"
+             f"👇 Foydalanish uchun tilni tanlang\n\n"
+             f"🇷🇺  Здравствуйте <b>{message.from_user.full_name}</b>.\n"
+             f"Добро пожаловать в бот.\n"
+             f"С помощью этого бота вы сможете узнать о необходимых товарах онлайн-платформы <b>MBG-Store</b>.\n"
+             f"👇 Выберите язык для использования",
+        parse_mode=ParseMode.HTML,
         reply_markup=await language()
     )
-    # await message.answer(
-    #     text="Foydalanish uchun tilni tanlang.\n"
-    #          "Выберите язык для использования.",
-    #     reply_markup=await language()
-    # )
 
     response = requests.post(
         url=f"{BACKEND_URL}/create/",
@@ -60,9 +62,9 @@ async def bot_start(message: types.Message, state: FSMContext):
     await state.set_state(LangState.lang)
 
 
-@router.message(LangState.lang, F.text.in_(["Uzb", "Rus"]))
+@router.message(LangState.lang, F.text.in_(["🇺🇿 O'zbek", "🇷🇺 Русский"]))
 async def user_language(message: types.Message, state: FSMContext):
-    if message.text == "Uzb":
+    if message.text == "🇺🇿 O'zbek":
         lang = 'uz'
     else:
         lang = 'ru'
@@ -115,7 +117,7 @@ async def main_page(message: types.Message, state: FSMContext):
     )
 
 
-@router.message(F.text.in_(["Qidiruv 🔍", "Поиск 🔍"]))
+@router.message(F.text.in_(["Tur bo'yicha izlash 🔍", "Поиск по типу 🔍"]))
 async def search_by_type_button(message: types.Message, state: FSMContext):
     lang = await get_user_lang(message=message, state=state)
     if not lang:
@@ -123,10 +125,8 @@ async def search_by_type_button(message: types.Message, state: FSMContext):
 
     await message.answer(
         text={
-            'uz': "Sizni qiziqtirgan mahsulot turini tanlang\n"
-                  "va turdagi mahsulotlar haqida ko'proq malumot olishingiz mumkin.",
-            'ru': "Выберите интересующий вас тип продукта\n"
-                  "и вы можете узнать больше о типах продуктов."
+            'uz': "👇 Sizni qiziqtirgan mahsulot turini tanlang\n",
+            'ru': "👇 Выберите интересующий вас тип продукта\n"
         }.get(lang),
         reply_markup=await product_type(lang)
     )

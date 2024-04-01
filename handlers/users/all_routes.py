@@ -8,8 +8,8 @@ from . import change_language
 
 user_router = Router()
 user_router.include_routers(
-    help.router,
     start.router,
+    help.router,
     change_language.router,
     search_by_type.router,
     search_default.router,

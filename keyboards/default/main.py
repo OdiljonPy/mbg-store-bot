@@ -5,8 +5,8 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from utils.misc.assistants import send_error_notify_
 
 MainButtonText = {
-    'uz': ["Qidiruv 🔍", "🏠 Asosiy sahifa", "🔄 Til"],
-    'ru': ["Поиск 🔍", "🏠 Главная страница", "🔄 Язык"]
+    'uz': ["Tur bo'yicha izlash 🔍", "🏠 Asosiy sahifa", "🌎 Tilni o'zgartirish"],
+    'ru': ["Поиск по типу 🔍", "🏠 Главная страница", "🌎 Изменить язык"]
 }
 
 
@@ -22,8 +22,8 @@ async def main_button(lang: str):
 
 async def language():
     button = ReplyKeyboardBuilder()
-    button.add(KeyboardButton(text="Uzb")),
-    button.add(KeyboardButton(text="Rus"))
+    button.add(KeyboardButton(text="🇺🇿 O'zbek")),
+    button.add(KeyboardButton(text="🇷🇺 Русский"))
     button.adjust(2),
     return button.as_markup(resize_keyboard=True)
 

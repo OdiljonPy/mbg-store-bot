@@ -3,8 +3,10 @@ from aiogram import types
 from typing import Union, Optional
 from data.config import BACKEND_URL
 from aiogram.enums import ParseMode
+from states.states import UserNotFound
 from aiogram.utils.markdown import hlink
 from aiogram.fsm.context import FSMContext
+from aiogram.types import ReplyKeyboardRemove
 from data.config import ERROR_NOTIFY_BOT_TOKEN, ERROR_NOTIFY_CHANNEL_ID
 
 
@@ -14,10 +16,10 @@ async def send_error_notify_(status_code: int, line: int, filename: str, request
                f"{filename}  {line}-qator\n"
                f"request.status_code: {status_code}")
 
-    # requests.post(
-    #     url=f'https://api.telegram.org/bot{ERROR_NOTIFY_BOT_TOKEN}/sendMessage',
-    #     data={'chat_id': ERROR_NOTIFY_CHANNEL_ID, 'text': message}
-    # )
+    requests.post(
+        url=f'https://api.telegram.org/bot{ERROR_NOTIFY_BOT_TOKEN}/sendMessage',
+        data={'chat_id': ERROR_NOTIFY_CHANNEL_ID, 'text': message}
+    )
 
 
 async def get_user_lang(message: types.Message, state: FSMContext) -> str:
@@ -25,8 +27,9 @@ async def get_user_lang(message: types.Message, state: FSMContext) -> str:
     if data.get('language'):
         print("State lang: ", data.get('language'))
         return data.get('language')
-
+    print("OK")
     response = requests.get(f"{BACKEND_URL}/check/?telegram_id={message.from_user.id}")
+    print("response: ", response.json())
 
     if response.json().get("ok") and response.status_code == 200:
         if response.json().get('user'):
@@ -34,6 +37,16 @@ async def get_user_lang(message: types.Message, state: FSMContext) -> str:
             await state.update_data({'language': lang})
             return lang
         else:
+            if message.text != "/start":
+                await message.answer(
+                    text="Foydalanuvchilar uchun botga yangi imkoniyatlar qo'shildi 🎉.\n"
+                         "Iltimos /start ni bosing.\n\n"
+                         "Для пользователей в бот добавлены новые возможности 🎉.\n"
+                         "Нажмите пожалуйста /start.",
+                    reply_markup=ReplyKeyboardRemove()
+                )
+            await state.set_state(UserNotFound.user_id)
+
             return ''
     else:
         await send_error_notify_(
