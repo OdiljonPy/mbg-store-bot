@@ -33,9 +33,9 @@ async def search_by_type(message: types.Message, state: FSMContext):
         await message.answer(
             text={
                 'uz': "Tanlangan tur bo'yicha mahsulotlar topilmadi 😔.\n"
-                      "Iltimos sizga tavsiya qilingan turlardan birini tanlang.",
+                      "👇 Iltimos sizga tavsiya qilingan turlardan birini tanlang.",
                 'ru': "Продукты по выбранному типу не найдены 😔.\n"
-                      "Пожалуйста, выберите один из рекомендуемых типов."
+                      "👇 Пожалуйста, выберите один из рекомендуемых типов."
             }.get(lang)
         )
         return

@@ -13,5 +13,9 @@ class SearchByType(StatesGroup):
     p_type = State()
 
 
+class SearchByName(StatesGroup):
+    name = State()
+
+
 class UserNotFound(StatesGroup):
     user_id = State()
