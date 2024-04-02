@@ -14,7 +14,7 @@ async def send_error_notify_(status_code: int, line: int, filename: str, request
     message = ("MBG-Store-Bot:\n\n"
                f"Request {request_type} so'rovda xatolik yuz berdi.\n"
                f"{filename}  {line}-qator\n"
-               f"request.status_code: {status_code}")
+               f"requests.status_code: {status_code}")
 
     requests.post(
         url=f'https://api.telegram.org/bot{ERROR_NOTIFY_BOT_TOKEN}/sendMessage',
@@ -25,11 +25,8 @@ async def send_error_notify_(status_code: int, line: int, filename: str, request
 async def get_user_lang(message: types.Message, state: FSMContext) -> str:
     data = await state.get_data()
     if data.get('language'):
-        print("State lang: ", data.get('language'))
         return data.get('language')
-    print("OK")
     response = requests.get(f"{BACKEND_URL}/check/?telegram_id={message.from_user.id}")
-    print("response: ", response.json())
 
     if response.json().get("ok") and response.status_code == 200:
         if response.json().get('user'):
@@ -51,7 +48,7 @@ async def get_user_lang(message: types.Message, state: FSMContext) -> str:
     else:
         await send_error_notify_(
             status_code=response.status_code,
-            line=24, filename='assistants.py', request_type='GET'
+            line=29, filename='assistants.py', request_type='GET'
         )
         await network_error_message(
             message=message

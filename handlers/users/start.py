@@ -54,7 +54,8 @@ async def bot_start(message: types.Message, state: FSMContext):
     if response.status_code != 201:
         await send_error_notify_(
             status_code=response.status_code,
-            line=40, filename='start.py',
+            line=46, filename='start.py',
+            request_type='POST'
         )
         await network_error_message(message=message)
         return
@@ -80,7 +81,8 @@ async def user_language(message: types.Message, state: FSMContext):
     if response.status_code != 201:
         await send_error_notify_(
             status_code=response.status_code,
-            line=66, filename='start.py'
+            line=73, filename='start.py',
+            request_type='POST'
         )
         await network_error_message(message=message)
         await state.set_state(LangState.lang)

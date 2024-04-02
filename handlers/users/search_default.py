@@ -19,10 +19,10 @@ async def search_default_with_btn(message: types.Message, state: FSMContext):
     if message.text not in data.get('list'):
         await message.answer(
             text={
-                'uz': "Iltimos berilgan mahsulot nomlaridan birini tanlang.\n"
-                      "👇 Qidiruvni tugatish uchun <b>🏠 Asosiy sahifa</b> tugmasini bosing.",
-                'ru': "Пожалуйста, выберите одно из названий продуктов.\n"
-                      "👇 Нажмите кнопку <b>🏠 Главная страница</b>, чтобы завершить поиск."
+                'uz': "Iltimos sizga tavsiya qilingan mahsulot nomlaridan birini tanlang.\n"
+                      "👇 Qidiruvni tugatish uchun <b>*🏠 Asosiy sahifa*</b> tugmasini bosing.",
+                'ru': "Пожалуйста, выберите одно из рекомендуемых названий продуктов.\n"
+                      "👇 Нажмите кнопку <b>*🏠 Главная страница*</b>, чтобы завершить поиск."
             }.get(lang),
             parse_mode=ParseMode.HTML
         )
@@ -40,7 +40,7 @@ async def search_default_with_btn(message: types.Message, state: FSMContext):
         await network_error_message(message)
         await send_error_notify_(
             status_code=response.status_code,
-            line=16, filename='search_default.py',
+            line=31, filename='search_default.py',
             request_type='POST'
         )
         return

@@ -50,7 +50,7 @@ async def search_by_type(message: types.Message, state: FSMContext):
         await network_error_message(message=message)
         await send_error_notify_(
             status_code=response.status_code,
-            line=33, filename='search_by_type.py',
+            line=43, filename='search_by_type.py',
             request_type='POST'
         )
         return

@@ -56,7 +56,7 @@ async def change_language(message: types.Message, state: FSMContext):
         }
     )
 
-    if response.status_code != 201:
+    if response.status_code == 201:
         await network_error_message(message=message, button=await main_button(lang))
         await send_error_notify_(
             status_code=response.status_code,
