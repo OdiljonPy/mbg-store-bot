@@ -1,7 +1,6 @@
 import requests
 from aiogram import types, Router
 from data.config import BACKEND_URL
-from aiogram.enums import ParseMode
 from states.states import SearchByName
 from aiogram.fsm.context import FSMContext
 from keyboards.default.main import create_p_name
@@ -17,15 +16,7 @@ async def search_default_with_btn(message: types.Message, state: FSMContext):
         return
     data = await state.get_data()
     if message.text not in data.get('list'):
-        await message.answer(
-            text={
-                'uz': "Iltimos sizga tavsiya qilingan mahsulot nomlaridan birini tanlang.\n"
-                      "👇 Qidiruvni tugatish uchun <b>*🏠 Asosiy sahifa*</b> tugmasini bosing.",
-                'ru': "Пожалуйста, выберите одно из рекомендуемых названий продуктов.\n"
-                      "👇 Нажмите кнопку <b>*🏠 Главная страница*</b>, чтобы завершить поиск."
-            }.get(lang),
-            parse_mode=ParseMode.HTML
-        )
+        await search_default(message, state)
         return
 
     response = requests.post(
@@ -40,7 +31,7 @@ async def search_default_with_btn(message: types.Message, state: FSMContext):
         await network_error_message(message)
         await send_error_notify_(
             status_code=response.status_code,
-            line=31, filename='search_default.py',
+            line=22, filename='search_default.py',
             request_type='POST'
         )
         return
