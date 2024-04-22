@@ -13,7 +13,7 @@ async def on_startup():
 
     # Bot ishga tushgani haqida adminga xabar berish
     await on_startup_notify(bot)
-    # await notify_users_(bot)
+    await notify_users_(bot)
 
     # Include user routers
     dp.include_router(user_router)

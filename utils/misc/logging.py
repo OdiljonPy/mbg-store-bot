@@ -1,5 +1,8 @@
+import os
 import logging
 from datetime import datetime
+
+os.makedirs(name='data/logs', exist_ok=True)
 
 logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.DEBUG,
