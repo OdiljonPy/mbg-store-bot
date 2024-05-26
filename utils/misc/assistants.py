@@ -1,5 +1,6 @@
 import requests
 from aiogram import types
+from openpyxl import load_workbook
 from typing import Union, Optional
 from data.config import BACKEND_URL
 from aiogram.enums import ParseMode
@@ -143,3 +144,31 @@ async def send_content(message: types.Message, data, lang):
         await message.answer_media_group(
             media=media,
         )
+
+
+async def send_products_xlsx(telegram_id):
+    files = {
+        'file': open(f"data/{telegram_id}_products.xlsx", "rb")
+    }
+    result = requests.post(
+        url=f"{BACKEND_URL}/create/product_xlsx/",
+        data={
+            'telegram_id': telegram_id,
+        },
+        files=files
+    )
+    return result
+
+
+async def check_file_xlsx(telegram_id):
+    wb_object = load_workbook(f'data/{telegram_id}_products.xlsx')
+    wb_active = wb_object.active
+    No = wb_active.cell(column=1, row=1).value == "№"  # A
+    barcode = wb_active.cell(column=2, row=1).value == "Штрих-код"  # B
+    name = wb_active.cell(column=3, row=1).value == "Название товара"  # C
+    category = wb_active.cell(column=4, row=1).value == "Категория товара "  # D
+    available = wb_active.cell(column=5, row=1).value == "Количество"  # E
+    entry_price = wb_active.cell(column=6, row=1).value == "Себестоимость"  # F
+    price = wb_active.cell(column=7, row=1).value == "Цена"  # G
+    discount = wb_active.cell(column=8, row=1).value == "Скидка (в процентах)"  # H
+    return No and barcode and name and category and available and entry_price and price and discount
