@@ -148,7 +148,7 @@ async def send_content(message: types.Message, data, lang):
 
 async def send_products_xlsx(telegram_id):
     files = {
-        'file': open(f"data/{telegram_id}_products.xlsx", "rb")
+        'file': open(f"data/products/{telegram_id}_products.xlsx", "rb")
     }
     result = requests.post(
         url=f"{BACKEND_URL}/create/product_xlsx/",
@@ -161,7 +161,7 @@ async def send_products_xlsx(telegram_id):
 
 
 async def check_file_xlsx(telegram_id):
-    wb_object = load_workbook(f'data/{telegram_id}_products.xlsx')
+    wb_object = load_workbook(f'data/products/{telegram_id}_products.xlsx')
     wb_active = wb_object.active
     No = wb_active.cell(column=1, row=1).value == "№"  # A
     barcode = wb_active.cell(column=2, row=1).value == "Штрих-код"  # B

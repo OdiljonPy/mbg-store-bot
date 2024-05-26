@@ -22,7 +22,8 @@ async def download_file(message: types.Message, state: FSMContext):
         )
         return
 
-    await message.bot.download_file(file_path=file_path, destination=f"data/{message.from_user.id}_products.xlsx")
+    await message.bot.download_file(file_path=file_path,
+                                    destination=f"data/products/{message.from_user.id}_products.xlsx")
     if not await check_file_xlsx(message.from_user.id):
         await message.answer(
             text={
