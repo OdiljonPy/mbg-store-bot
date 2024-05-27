@@ -1,3 +1,4 @@
+import os
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from utils.misc.assistants import send_products_xlsx, check_file_xlsx, get_user_lang
@@ -31,9 +32,11 @@ async def download_file(message: types.Message, state: FSMContext):
                 'ru': "Этот файл не соответствует указанным условиям."
             }.get(lang)
         )
+        os.remove(f'data/products/{message.from_user.id}_products.xlsx')
         return
 
     result = await send_products_xlsx(message.from_user.id)
+    os.remove(f'data/products/{message.from_user.id}_products.xlsx')
     if result.status_code == 200:
         await message.answer(
             text=f"{result.json().get('result')}"
