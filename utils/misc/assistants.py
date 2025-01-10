@@ -166,11 +166,12 @@ async def check_file_baseProduct_xlsx(telegram_id):
     wb_active = wb_object.active
     No = wb_active.cell(column=1, row=1).value == "№"  # A
     name = wb_active.cell(column=2, row=1).value == "Название товара"  # B
-    category = wb_active.cell(column=3, row=1).value == "Категория товара"  # .C
-    description = wb_active.cell(column=4, row=1).value == "Описание товара"  # D
-    amount_type = wb_active.cell(column=5, row=1).value == "Тип суммы"  # E
-    barcode = wb_active.cell(column=6, row=1).value == "Штрих-код"  # F
-    return No and name and category and description and amount_type and barcode
+    name_ru = wb_active.cell(column=3, row=1).value == "Название товара русский"  # B
+    category = wb_active.cell(column=4, row=1).value == "Категория товара"  # .C
+    description = wb_active.cell(column=5, row=1).value == "Описание товара"  # D
+    amount_type = wb_active.cell(column=6, row=1).value == "Тип суммы"  # E
+    barcode = wb_active.cell(column=7, row=1).value == "Штрих-код"  # F
+    return No and name and name_ru and category and description and amount_type and barcode
 
 
 async def check_file_Product_xlsx(telegram_id):
@@ -178,12 +179,13 @@ async def check_file_Product_xlsx(telegram_id):
     wb_active = wb_object.active
     No = wb_active.cell(column=1, row=1).value == "№"  # A
     name = wb_active.cell(column=2, row=1).value == "Название товара"  # B
-    price = wb_active.cell(column=3, row=1).value == "Цена"  # .C
-    entry_price = wb_active.cell(column=4, row=1).value == "Цена входа"  # .D
-    discount_price = wb_active.cell(column=5, row=1).value == "Цена со скидкой"  # E
-    number_of_sales = wb_active.cell(column=6, row=1).value == "Количество продаж"  # E
-    available = wb_active.cell(column=7, row=1).value == "Доступный"  # F
-    discount = wb_active.cell(column=8, row=1).value == "Скидка (в процентах)"  # G
-    description = wb_active.cell(column=9, row=1).value == "Описание товара"  # D
-    barcode = wb_active.cell(column=10, row=1).value == "Штрих-код"  # H
-    return No and name and price and entry_price and discount_price and number_of_sales and available and discount and description and barcode
+    name_ru = wb_active.cell(column=3, row=1).value == "Название товара русский"  # .C
+    price = wb_active.cell(column=4, row=1).value == "Цена"  # .D
+    entry_price = wb_active.cell(column=5, row=1).value == "Цена входа"  # .D
+    discount_price = wb_active.cell(column=6, row=1).value == "Цена со скидкой"  # E
+    number_of_sales = wb_active.cell(column=7, row=1).value == "Количество продаж"  # E
+    available = wb_active.cell(column=8, row=1).value == "Доступный"  # F
+    discount = wb_active.cell(column=9, row=1).value == "Скидка (в процентах)"  # G
+    description = wb_active.cell(column=10, row=1).value == "Описание товара"  # D
+    barcode = wb_active.cell(column=11, row=1).value == "Штрих-код"  # H
+    return No and name and name_ru and price and entry_price and discount_price and number_of_sales and available and discount and description and barcode
