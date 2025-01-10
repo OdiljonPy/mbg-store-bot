@@ -132,6 +132,11 @@ async def send_content(message: types.Message, data, lang):
                   f"{product_url}\n"
                   f"{shop_location}"
         }
+        if not img_list:
+            await message.answer(
+                text=text.get(lang)
+            )
+            return
         media = [
             types.InputMediaPhoto(
                 media=img_list.pop().get('image'),
