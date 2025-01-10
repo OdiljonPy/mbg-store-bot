@@ -1,5 +1,5 @@
-from aiogram.types import BotCommand, BotCommandScopeDefault
 from loader import bot
+from aiogram.types import BotCommand, BotCommandScopeDefault
 
 
 async def set_default_commands():
