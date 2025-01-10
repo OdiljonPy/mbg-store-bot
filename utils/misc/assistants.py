@@ -146,29 +146,44 @@ async def send_content(message: types.Message, data, lang):
         )
 
 
-async def send_products_xlsx(telegram_id):
+async def send_products_xlsx(telegram_id, type_):
     files = {
         'file': open(f"data/products/{telegram_id}_products.xlsx", "rb")
     }
     result = requests.post(
-        url=f"{BACKEND_URL}/create/product_xlsx/",
+        url=f"{BACKEND_URL}/store/create/product_xlsx/",
         data={
             'telegram_id': telegram_id,
+            'type': type_
         },
         files=files
     )
     return result
 
 
-async def check_file_xlsx(telegram_id):
+async def check_file_baseProduct_xlsx(telegram_id):
     wb_object = load_workbook(f'data/products/{telegram_id}_products.xlsx')
     wb_active = wb_object.active
     No = wb_active.cell(column=1, row=1).value == "№"  # A
-    barcode = wb_active.cell(column=2, row=1).value == "Штрих-код"  # B
-    name = wb_active.cell(column=3, row=1).value == "Название товара"  # C
-    category = wb_active.cell(column=4, row=1).value == "Категория товара "  # D
-    available = wb_active.cell(column=5, row=1).value == "Количество"  # E
-    entry_price = wb_active.cell(column=6, row=1).value == "Себестоимость"  # F
-    price = wb_active.cell(column=7, row=1).value == "Цена"  # G
-    discount = wb_active.cell(column=8, row=1).value == "Скидка (в процентах)"  # H
-    return No and barcode and name and category and available and entry_price and price and discount
+    name = wb_active.cell(column=2, row=1).value == "Название товара"  # B
+    category = wb_active.cell(column=3, row=1).value == "Категория товара"  # .C
+    description = wb_active.cell(column=4, row=1).value == "Описание товара"  # D
+    amount_type = wb_active.cell(column=5, row=1).value == "Тип суммы"  # E
+    barcode = wb_active.cell(column=6, row=1).value == "Штрих-код"  # F
+    return No and name and category and description and amount_type and barcode
+
+
+async def check_file_Product_xlsx(telegram_id):
+    wb_object = load_workbook(f'data/products/{telegram_id}_products.xlsx')
+    wb_active = wb_object.active
+    No = wb_active.cell(column=1, row=1).value == "№"  # A
+    name = wb_active.cell(column=2, row=1).value == "Название товара"  # B
+    price = wb_active.cell(column=3, row=1).value == "Цена"  # .C
+    entry_price = wb_active.cell(column=4, row=1).value == "Цена входа"  # .D
+    discount_price = wb_active.cell(column=5, row=1).value == "Цена со скидкой"  # E
+    number_of_sales = wb_active.cell(column=6, row=1).value == "Количество продаж"  # E
+    available = wb_active.cell(column=7, row=1).value == "Доступный"  # F
+    discount = wb_active.cell(column=8, row=1).value == "Скидка (в процентах)"  # G
+    description = wb_active.cell(column=9, row=1).value == "Описание товара"  # D
+    barcode = wb_active.cell(column=10, row=1).value == "Штрих-код"  # H
+    return No and name and price and entry_price and discount_price and number_of_sales and available and discount and description and barcode
