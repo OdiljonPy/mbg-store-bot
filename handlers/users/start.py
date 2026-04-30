@@ -1,135 +1,200 @@
-import requests
-from aiogram import F
-from aiogram import types, Router
-from states.states import LangState
-from aiogram.enums import ParseMode
-from data.config import BACKEND_URL
-from states.states import SearchByType
-from aiogram.filters import CommandStart
+from aiogram import F, Router
+from contextlib import suppress
+import os
+from aiogram.filters import Command, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
-from keyboards.default.main import main_button, language, product_type
-from utils.misc.assistants import get_user_lang, send_error_notify_, network_error_message
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message,
+    WebAppInfo,
+)
 
 router = Router()
 
-answer_t = {
-    'uz': "🖋 Menga mahsulot nomini yozib yuboring yoki\n"
-          "👇 Berilgan tugmalar orqali kerakli amallar ketma-ketligini bajaring.",
-    'ru': "🖋 Напишите Мне название продукта или\n"
-          "👇 Выполните необходимую последовательность действий по заданным кнопкам."
-}
+WEB_APP_URL = "https://mbgstore.uz/"
+ADMIN_IDS = [int(admin_id) for admin_id in os.getenv("ADMINS", "").split(",") if admin_id.strip()]
+USER_LANGS = {}
+
+class FeedbackState(StatesGroup):
+    waiting_text = State()
+
+
+def language_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🇺🇿 O‘zbekcha", callback_data="lang_uz")],
+            [InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang_ru")],
+        ]
+    )
+
+
+def main_menu_keyboard(lang: str) -> InlineKeyboardMarkup:
+    texts = {
+        "uz": {
+            "open": "Ochish",
+            "feedback": "✍️ Fikr qoldirish",
+            "change_lang": "🌎 Tilni o'zgartirish",
+        },
+        "ru": {
+            "open": "Открыть",
+            "feedback": "✍️ Оставить отзыв",
+            "change_lang": "🌎 Изменить язык",
+        },
+    }
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=texts[lang]["open"],
+                    web_app=WebAppInfo(url=WEB_APP_URL),
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text=texts[lang]["feedback"],
+                    callback_data=f"feedback_{lang}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text=texts[lang]["change_lang"],
+                    callback_data="change_lang",
+                )
+            ],
+        ]
+    )
+
+
+def feedback_admin_text(lang: str, user, feedback_text: str) -> str:
+    username = f"@{user.username}" if user.username else "Username yo'q"
+
+    if lang == "ru":
+        return (
+            "📝 Новый отзыв\n\n"
+            f"👤 Имя: {user.full_name}\n"
+            f"🔗 Username: {username}\n"
+            f"🆔 User ID: {user.id}\n"
+            "🌐 Язык: ru\n\n"
+            f"💬 Отзыв:\n{feedback_text}"
+        )
+
+    return (
+        "📝 Yangi otziv\n\n"
+        f"👤 Ism: {user.full_name}\n"
+        f"🔗 Username: {username}\n"
+        f"🆔 User ID: {user.id}\n"
+        "🌐 Til: uz\n\n"
+        f"💬 Otziv:\n{feedback_text}"
+    )
 
 
 @router.message(CommandStart())
-async def bot_start(message: types.Message, state: FSMContext):
-    lang = await get_user_lang(message=message, state=state)
-    if lang:
-        await message.answer(
-            text=answer_t.get(lang),
-            reply_markup=await main_button(lang=lang)
-        )
-        return
+async def start_handler(message: Message, state: FSMContext):
+    await state.clear()
     await message.answer(
-        text=f"🇺🇿  Assalomu alaykum <b>{message.from_user.full_name}</b>.\n"
-             f"Botga xush kelibsiz.\n"
-             f"Bu bot yordamida siz <b>MBG-Store</b> online platformasidan "
-             f"kerakli mahsulotlar haqida bilib olishingiz mumkin.\n"
-             f"👇 Foydalanish uchun tilni tanlang\n\n"
-             f"🇷🇺  Здравствуйте <b>{message.from_user.full_name}</b>.\n"
-             f"Добро пожаловать в бот.\n"
-             f"С помощью этого бота вы сможете узнать о необходимых товарах онлайн-платформы <b>MBG-Store</b>.\n"
-             f"👇 Выберите язык для использования",
-        parse_mode=ParseMode.HTML,
-        reply_markup=await language()
+        text="Tilni tanlang / Выберите язык",
+        reply_markup=language_keyboard(),
     )
 
-    response = requests.post(
-        url=f"{BACKEND_URL}/create/",
-        json={
-            "full_name": f"{message.from_user.full_name}",
-            "telegram_id": message.from_user.id
-        }
+
+@router.message(Command("language"))
+async def language_command_handler(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(
+        text="Tilni tanlang / Выберите язык",
+        reply_markup=language_keyboard(),
     )
 
-    if response.status_code != 201:
-        await send_error_notify_(
-            status_code=response.status_code,
-            line=46, filename='start.py',
-            request_type='POST'
-        )
-        await network_error_message(message=message)
-        return
 
-    await state.set_state(LangState.lang)
+@router.message(F.text == "/id")
+async def get_user_id_handler(message: Message):
+    await message.answer(f"Sizning Telegram ID: {message.from_user.id}")
 
 
-@router.message(LangState.lang, F.text.in_(["🇺🇿 O'zbek", "🇷🇺 Русский"]))
-async def user_language(message: types.Message, state: FSMContext):
-    if message.text == "🇺🇿 O'zbek":
-        lang = 'uz'
+@router.callback_query(F.data == "change_lang")
+async def change_language_handler(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await callback.message.edit_text(
+        text="Tilni tanlang / Выберите язык",
+        reply_markup=language_keyboard(),
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "lang_uz")
+async def uz_language_handler(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    USER_LANGS[callback.from_user.id] = "uz"
+    await callback.message.edit_text(
+        text="Xush kelibsiz",
+        reply_markup=main_menu_keyboard("uz"),
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "lang_ru")
+async def ru_language_handler(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
+    USER_LANGS[callback.from_user.id] = "ru"
+    await callback.message.edit_text(
+        text="Добро пожаловать",
+        reply_markup=main_menu_keyboard("ru"),
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "feedback_uz")
+async def feedback_uz_handler(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(FeedbackState.waiting_text)
+    await state.update_data(lang="uz")
+    await callback.message.answer(text="Fikringizni yozing")
+    await callback.answer()
+
+
+@router.callback_query(F.data == "feedback_ru")
+async def feedback_ru_handler(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(FeedbackState.waiting_text)
+    await state.update_data(lang="ru")
+    await callback.message.answer(text="Напишите ваш отзыв")
+    await callback.answer()
+
+
+@router.message(StateFilter(FeedbackState.waiting_text), F.text)
+async def send_feedback_to_admin_handler(message: Message, state: FSMContext):
+    data = await state.get_data()
+    lang = data.get("lang", "uz")
+
+    user = message.from_user
+
+    await state.clear()
+
+    if lang == "ru":
+        await message.answer("Спасибо за отзыв")
     else:
-        lang = 'ru'
+        await message.answer("Fikringiz uchun rahmat")
 
-    response = requests.post(
-        url=f"{BACKEND_URL}/create/",
-        json={
-            "full_name": f"{message.from_user.full_name}",
-            "telegram_id": message.from_user.id,
-            "language": lang
-        }
-    )
-    if response.status_code != 201:
-        await send_error_notify_(
-            status_code=response.status_code,
-            line=73, filename='start.py',
-            request_type='POST'
+    for admin_id in ADMIN_IDS:
+        if admin_id == user.id:
+            continue
+
+        admin_lang = USER_LANGS.get(admin_id, "uz")
+        admin_text = feedback_admin_text(
+            lang=admin_lang,
+            user=user,
+            feedback_text=message.text,
         )
-        await network_error_message(message=message)
-        await state.set_state(LangState.lang)
-        return
 
-    await message.answer(
-        text=answer_t.get(lang),
-        reply_markup=await main_button(lang=lang)
-    )
-    await state.set_state(None)
+        with suppress(Exception):
+            await message.bot.send_message(
+                chat_id=admin_id,
+                text=admin_text,
+            )
 
 
-@router.message(LangState.lang)
-async def user_language(message: types.Message, state: FSMContext):
-    await message.delete()
-    await message.answer(
-        text="Murojat uchun tilni tanlang 🪄.\n\n"
-             "Выберите язык для апелляции 🪄.",
-        reply_markup=await language()
-    )
-    await state.set_state(LangState.lang)
-
-
-@router.message(F.text.in_(["🏠 Asosiy sahifa", "🏠 Главная страница"]))
-async def main_page(message: types.Message, state: FSMContext):
-    lang = await get_user_lang(message=message, state=state)
-    await state.set_state(None)
-    if not lang:
-        return
-
-    await message.answer(
-        text=answer_t.get(lang),
-        reply_markup=await main_button(lang=lang)
-    )
-
-
-@router.message(F.text.in_(["Tur bo'yicha izlash 🔍", "Поиск по типу 🔍"]))
-async def search_by_type_button(message: types.Message, state: FSMContext):
-    lang = await get_user_lang(message=message, state=state)
-    if not lang:
-        return
-
-    await message.answer(
-        text={
-            'uz': "👇 Sizni qiziqtirgan mahsulot turini tanlang\n",
-            'ru': "👇 Выберите интересующий вас тип продукта\n"
-        }.get(lang),
-        reply_markup=await product_type(lang)
-    )
-    await state.set_state(SearchByType.p_type)
+@router.message(StateFilter(None), F.text)
+async def ignore_unknown_text_handler(message: Message):
+    return

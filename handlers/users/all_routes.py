@@ -13,8 +13,6 @@ user_router.include_routers(
     help.router,
     read_exel.router,
     change_language.router,
-    search_by_type.router,
-    search_default.router,
     echo.router,
 )
 
